@@ -9,11 +9,11 @@ import CreateScreen from './screens/CreateScreen'
 const Stack = createStackNavigator(); 
 export default function App() {
   return (
-    <NavigationContainer>
+    <NavigationContainer mode="modal">
       <Stack.Navigator>
-      <Stack.Screen name="LoginScreen" component={LoginScreen}/>
+      <Stack.Screen name="LoginScreen" component={LoginScreen} options={{title:"Login"}}/>
       <Stack.Screen name="ChatScreen" component={ChatScreen}/>
-      <Stack.Screen name="CreateScreen" component={CreateScreen}/>
+      <Stack.Screen name="CreateScreen" component={CreateScreen} options={{title:"Create an Account"}}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
