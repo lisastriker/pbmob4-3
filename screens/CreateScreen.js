@@ -18,17 +18,17 @@ export default function ChatScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userName, setUser] = useState({});
-
+  const [errorM, setErrorM] = useState("")
   //Function to sign up
   function signUp(email, password) {
     firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then((user) => {
-        navigation.navigate("LoginScreen", {userName})
+        navigation.navigate("LoginScreen")
       })
       .catch((error) => {
-        console.log(error);
+        setErrorM(error.message)
       });
   }
 
@@ -61,6 +61,7 @@ export default function ChatScreen({ navigation }) {
                 }}>
                 <Text>Sign up</Text>
               </TouchableOpacity>
+              <Text>{errorM}</Text>
         </View>
       </View>
     </TouchableWithoutFeedback>

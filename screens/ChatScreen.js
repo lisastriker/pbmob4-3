@@ -7,7 +7,7 @@ import "firebase/auth";
 import { useEffect, useState, useCallback } from 'react';
 import {GiftedChat} from 'react-native-gifted-chat'
 
-
+const db = firebase.firestore().collection("messages")
 const user = firebase.auth().currentUser;
 const auth = firebase.auth();
 export default function ChatScreen({navigation, route}){
@@ -16,18 +16,21 @@ export default function ChatScreen({navigation, route}){
 
     useEffect(()=>{
         getUser()
-        setMessages([
-            {
-              _id: 1,
-              text: 'Hello developer',
-              createdAt: new Date(),
-              user: {
-                _id: 2,
-                name: 'React Native',
-                avatar: 'https://placeimg.com/140/140/any',
-              },
-            },
-          ])
+        //Load data from firebase
+
+        const unsubscribeSnapshot = db
+        .orderBy("createdAt", "desc")
+        .onSnapshot(collectionSnapshot=>{
+            const serverMessage = collectionSnapshot.docs.map((doc)=> {
+            const returnData = {
+                ...doc.data(),
+                createdAt: new Date(doc.data().createdAt.seconds*1000)
+            }
+            return returnData
+            });
+            setMessages(serverMessage)
+        })
+        return ()=> {unsubscribeSnapshot()} //the unsubscribeSnapshot runs at mount, and stops when page closes
     },[])
 
     useEffect(()=>{
@@ -41,7 +44,9 @@ export default function ChatScreen({navigation, route}){
     })
 
     function sendMessages(newMessages){
-        setMessages([...newMessages, ...messages ])
+        const newMessage = newMessages[0]
+        db.add(newMessage)
+        //setMessages([...newMessages, ...messages ])
     }
 
     function logout(){
@@ -59,13 +64,19 @@ export default function ChatScreen({navigation, route}){
             }
         })
     }
+
+
     return(
     <GiftedChat
       messages={messages}
       onSend={newMessages => sendMessages(newMessages)}
+      renderUsernameOnMessage={true}
       user={{
         _id: 1,
       }}
+      user={{_id:auth.currentUser.uid,
+      name:auth.currentUser.email,
+      avatar:"http://placekitten.com/200/300"}}
     />
     );
 }
